@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -125,6 +126,14 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
             @Override
             public void onClick(View v) {
                 onMapReady(mMap);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(end_lat,end_log));
+                markerOptions.title("leangth");
+                float results[] = new float[10];
+                Location.distanceBetween(src_latitude,src_longitude,dest_latitude,dest_longitude,results);
+                markerOptions.snippet("distance"+results[0]);
+                mMap.addMarker(markerOptions);
+                Toast.makeText(MoveOnMap.this, "distance"+results[0], Toast.LENGTH_SHORT).show();
             }
 
         });
@@ -151,6 +160,7 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
                     destination_address=place.getAddress();
 
                 }
+
                 mapclear = "map";
                 destination_latlng = place.getLatLng().latitude + "," + place.getLatLng().longitude;
                 destination_address = place.getAddress().trim();
@@ -182,8 +192,10 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
     private void autoComp() {
 
         autocompleteFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG,Place.Field.ADDRESS,Place.Field.ADDRESS_COMPONENTS));
 
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG,Place.Field.ADDRESS,Place.Field.ADDRESS_COMPONENTS));
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     private void mapFragment() {
@@ -261,68 +273,68 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
 
         String requestUrl  =null;
 
-//        try {
-//
-//            String str_org = "origin=" + latLng.latitude +","+latLng.longitude;
-//            //Value of destination
-//            String str_dest = "destination=" + latlngNew.latitude+","+latlngNew.longitude;
-//            //Set value enable the sensor
-//            String sensor = "sensor=false";
-//            //Mode for find direction
-//            String mode = "mode=driving";
-//            //Build the full param
-//            final String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode;
-//            //Output format
-//            String output = "json";
-//            //Create url to request
-//            requestUrl = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param + "&key=" + "AIzaSyClXYwahInayLuwd5sQpm5k2jVW2Oc8490";
-//
-//            myService.getDataFromGoogleApi(requestUrl).enqueue(new Callback<String>() {
-//                @Override
-//                public void onResponse(Call<String> call, Response<String> response) {
-//                    try {
-//
-//                        JSONObject jsonObject = new JSONObject(response.body().toString());
-//                        JSONArray jsonArray = jsonObject.getJSONArray("routes");
-//                        for (int i=0;i<jsonArray.length();i++){
-//                            JSONObject route = jsonArray.getJSONObject(i);
-//                            JSONObject poly = route.getJSONObject("overview_polyline");
-//                            String polyline = poly.getString("points");
-//                            polylineList = decodePoly(polyline);
-//                        }
-//
-//
-//                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-//                        for (LatLng latLng:polylineList)
-//                            builder.include(latLng);
-//                        LatLngBounds bounds = builder.build();
-//                        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds,2);
-//                        mMap.animateCamera(mCameraUpdate);
-//
-//
-//                        polylineOptions = new PolylineOptions();
-//                        polylineOptions.color(Color.GREEN);
-//                        polylineOptions.width(5);
-//                        polylineOptions.startCap(new SquareCap());
-//                        polylineOptions.endCap(new SquareCap());
-//                        polylineOptions.jointType(JointType.ROUND);
-//                        polylineOptions.addAll(polylineList);
-//                        greyPolyline = mMap.addPolyline(polylineOptions);
-//
-//                        blackPolylineOptions = new PolylineOptions();
-//                        blackPolylineOptions.color(Color.RED);
-//                        blackPolylineOptions.width(5);
-//                        blackPolylineOptions.startCap(new SquareCap());
-//                        blackPolylineOptions.endCap(new SquareCap());
-//                        blackPolylineOptions.jointType(JointType.ROUND);
-//                        blackPolylineOptions.addAll(polylineList);
-//                        blackPolyline = mMap.addPolyline(blackPolylineOptions);
-//
-//                        mMap.addMarker(new MarkerOptions().position(polylineList.get(polylineList.size()-1)));
-//                        Log.e("size", String.valueOf(polylineList.size()));
-//                        Log.e("size-1", String.valueOf(polylineList.size()-1));
-//                        Log.e("polyinelist", String.valueOf(polylineList));
-//
+        try {
+
+            String str_org = "origin=" + latLng.latitude +","+latLng.longitude;
+            //Value of destination
+            String str_dest = "destination=" + latlngNew.latitude+","+latlngNew.longitude;
+            //Set value enable the sensor
+            String sensor = "sensor=false";
+            //Mode for find direction
+            String mode = "mode=driving";
+            //Build the full param
+            final String param = str_org +"&" + str_dest + "&" +sensor+"&" +mode;
+            //Output format
+            String output = "json";
+            //Create url to request
+            requestUrl = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param + "&key=" + "AIzaSyClXYwahInayLuwd5sQpm5k2jVW2Oc8490";
+
+            myService.getDataFromGoogleApi(requestUrl).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(response.body().toString());
+                        JSONArray jsonArray = jsonObject.getJSONArray("routes");
+                        for (int i=0;i<jsonArray.length();i++){
+                            JSONObject route = jsonArray.getJSONObject(i);
+                            JSONObject poly = route.getJSONObject("overview_polyline");
+                            String polyline = poly.getString("points");
+                            polylineList = decodePoly(polyline);
+                        }
+
+
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        for (LatLng latLng:polylineList)
+                            builder.include(latLng);
+                        LatLngBounds bounds = builder.build();
+                        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds,2);
+                        mMap.animateCamera(mCameraUpdate);
+
+
+                        polylineOptions = new PolylineOptions();
+                        polylineOptions.color(Color.GREEN);
+                        polylineOptions.width(5);
+                        polylineOptions.startCap(new SquareCap());
+                        polylineOptions.endCap(new SquareCap());
+                        polylineOptions.jointType(JointType.ROUND);
+                        polylineOptions.addAll(polylineList);
+                        greyPolyline = mMap.addPolyline(polylineOptions);
+
+                        blackPolylineOptions = new PolylineOptions();
+                        blackPolylineOptions.color(Color.RED);
+                        blackPolylineOptions.width(5);
+                        blackPolylineOptions.startCap(new SquareCap());
+                        blackPolylineOptions.endCap(new SquareCap());
+                        blackPolylineOptions.jointType(JointType.ROUND);
+                        blackPolylineOptions.addAll(polylineList);
+                        blackPolyline = mMap.addPolyline(blackPolylineOptions);
+
+                        mMap.addMarker(new MarkerOptions().position(polylineList.get(polylineList.size()-1)));
+                        Log.e("size", String.valueOf(polylineList.size()));
+                        Log.e("size-1", String.valueOf(polylineList.size()-1));
+                        Log.e("polyinelist", String.valueOf(polylineList));
+
 //                        ValueAnimator polylineAnimator = ValueAnimator.ofInt(0,100);
 //                        polylineAnimator.setDuration(2000);
 //                        polylineAnimator.setInterpolator(new LinearInterpolator());
@@ -348,7 +360,7 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
 //                        polylineAnimator.start();
 //                        int height = 80;
 //                        int width = 60;
-//                        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.car);
+//                        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.google);
 //                        Bitmap b=bitmapdraw.getBitmap();
 //                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 //
@@ -404,22 +416,22 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
 //
 //                            }
 //                        },3000);
-//
-//
-//                    }catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(Call<String> call, Throwable t) {
-//
-//                }
-//            });
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+
+                }
+            });
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
 
 
@@ -541,7 +553,7 @@ public class MoveOnMap extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-        end_lat = marker.getPosition().latitude;
-        end_log = marker.getPosition().longitude;
+        dest_latitude = marker.getPosition().latitude;
+        dest_longitude = marker.getPosition().longitude;
     }
 }
